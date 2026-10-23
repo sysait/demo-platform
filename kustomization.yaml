@@ -1,0 +1,63 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - nats.yaml
+  - publisher.yaml
+  - consumer-ui.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: platform-vars
+    envs:
+      - vars.properties
+
+replacements:
+  - source:
+      kind: ConfigMap
+      name: platform-vars
+      fieldPath: data.NAMESPACE
+    targets:
+      - select: { kind: .* }
+        fieldPaths: [metadata.namespace]
+        options: { create: true }
+  - source:
+      kind: ConfigMap
+      name: platform-vars
+      fieldPath: data.ORG_PREFIX
+    targets:
+      - select: { kind: .* }
+        fieldPaths: ["metadata.labels.[sysait.com/org]"]
+        options: { create: true }
+      - select: { kind: Deployment }
+        fieldPaths: ["spec.template.metadata.labels.[sysait.com/org]"]
+        options: { create: true }
+  - source:
+      kind: ConfigMap
+      name: platform-vars
+      fieldPath: data.ENV_SUFFIX
+    targets:
+      - select: { kind: .* }
+        fieldPaths: ["metadata.labels.[sysait.com/environment]"]
+        options: { create: true }
+      - select: { kind: Deployment }
+        fieldPaths: ["spec.template.metadata.labels.[sysait.com/environment]"]
+        options: { create: true }
+  - source:
+      kind: ConfigMap
+      name: platform-vars
+      fieldPath: data.INGRESS_HOST
+    targets:
+      - select: { kind: HTTPRoute }
+        fieldPaths:
+          - "metadata.annotations.[external-dns.alpha.kubernetes.io/hostname]"
+          - spec.hostnames.0
+  - source:
+      kind: ConfigMap
+      name: platform-vars
+      fieldPath: data.GATEWAY_NAME
+    targets:
+      - select: { kind: HTTPRoute }
+        fieldPaths: [spec.parentRefs.0.name]

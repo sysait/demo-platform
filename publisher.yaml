@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: browser-publisher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: browser-publisher
+  template:
+    metadata:
+      labels:
+        app: browser-publisher
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: publisher
+          image: python:3.12-alpine
+          command: ["python3", "-u", "-c"]
+          args:
+            - |
+              import random, socket, time
+              browsers = ["Chrome", "Chrome", "Edge", "Safari", "Firefox", "Other"]
+              while True:
+                try:
+                  with socket.create_connection(("nats", 4222), timeout=3) as s:
+                    s.sendall(b'CONNECT {"verbose":false}\r\n')
+                    while True:
+                      b = random.choice(browsers).encode()
+                      s.sendall(b"PUB browsers.visits %d\r\n%s\r\n" % (len(b), b))
+                      time.sleep(2)
+                except Exception as e:
+                  print("Waiting for NATS...", e)
+                  time.sleep(2)
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { cpu: 150m, memory: 128Mi }
+          securityContext:
+            privileged: false
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
