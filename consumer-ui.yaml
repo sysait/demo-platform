@@ -123,11 +123,20 @@ metadata:
     external-dns.alpha.kubernetes.io/hostname: demo.sysait.com
 spec:
   parentRefs:
-    - name: cf-lcj11-a-public
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: cf-lcj11-a-public
       namespace: istio-system
   hostnames:
     - demo.sysait.com
   rules:
-    - backendRefs:
-        - name: browser-analytics-ui
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: browser-analytics-ui
           port: 80
+          weight: 1
