@@ -301,7 +301,7 @@ spec:
                 <div class="container">
                   <div class="badge-bar">
                     <span class="badge">🌐 ns: <b id="nsBadge">...</b></span>
-                    <span class="badge vault">🔐 Vault OpenBao: ACTIVE</span>
+                    <span class="badge vault">🔐 Platform Secret Vault: ACTIVE</span>
                   </div>
 
                   <h1>🐍 CYBER SNAKE</h1>

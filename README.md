@@ -1,6 +1,6 @@
 # SysAIT Demo Platform — Cyber Snake 🐍
 
-Lekka aplikacja demonstracyjna w architekturze **GitOps** przygotowana dla platformy **SysAIT**. Aplikacja prezentuje pełen cykl życia wdrożenia mikrousługi na platformie: od utworzenia izolowanego środowiska, przez bezpieczne wstrzyknięcie hasła ze skarbca **Platform Secret Vault** (`OpenBao`) za pomocą `stctl`, aż po deklaratywną synchronizację GitOps i wystawienie publicznego punktu wejściowego (Ingress / Gateway API).
+Lekka aplikacja demonstracyjna w architekturze **GitOps** przygotowana dla platformy **SysAIT**. Aplikacja prezentuje pełen cykl życia wdrożenia mikrousługi na platformie: od utworzenia izolowanego środowiska, przez bezpieczne wstrzyknięcie hasła ze skarbca **Platform Secret Vault** za pomocą `stctl`, aż po deklaratywną synchronizację GitOps i wystawienie publicznego punktu wejściowego (Ingress / Gateway API).
 
 ---
 
