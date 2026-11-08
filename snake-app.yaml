@@ -295,6 +295,61 @@ spec:
                     cursor: pointer;
                   }
                   .btn-relock:hover { color: var(--neon-red); border-color: var(--neon-red); }
+                  /* Prompt Card */
+                  .card-prompt {
+                    margin-top: 1.25rem;
+                    background: #0b1120;
+                    border: 1px solid var(--border);
+                    border-radius: 12px;
+                    overflow: hidden;
+                    font-size: 0.85rem;
+                  }
+                  details summary {
+                    padding: 0.75rem 1rem;
+                    background: #1e293b;
+                    cursor: pointer;
+                    font-weight: 600;
+                    color: var(--neon-cyan);
+                    outline: none;
+                    user-select: none;
+                    transition: background 0.2s;
+                  }
+                  details summary:hover { background: #334155; }
+                  .prompt-body { padding: 1rem; }
+                  .prompt-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 0.75rem;
+                    gap: 8px;
+                  }
+                  .btn-copy {
+                    background: var(--neon-green);
+                    color: #042f2e;
+                    border: none;
+                    padding: 4px 10px;
+                    border-radius: 6px;
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition: opacity 0.2s;
+                    white-space: nowrap;
+                  }
+                  .btn-copy:hover { opacity: 0.9; }
+                  pre.prompt-code {
+                    background: #030712;
+                    border: 1px solid #1f2937;
+                    border-radius: 8px;
+                    padding: 0.75rem;
+                    color: #cbd5e1;
+                    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                    font-size: 0.75rem;
+                    line-height: 1.45;
+                    white-space: pre-wrap;
+                    word-break: break-word;
+                    max-height: 250px;
+                    overflow-y: auto;
+                  }
                 </style>
               </head>
               <body>
@@ -343,9 +398,56 @@ spec:
                     </div>
                     <button class="btn-relock" onclick="relockGame()">🔒 Zablokuj ponownie</button>
                   </div>
+
+                  <!-- Prompt dla Agenta AI -->
+                  <div class="card-prompt">
+                    <details>
+                      <summary>🤖 Prompt dla Agenta AI (stctl mcp-proxy)</summary>
+                      <div class="prompt-body">
+                        <div class="prompt-header">
+                          <span style="color:var(--muted); font-size:0.75rem;">Skopiuj i wklej do Cursor / Claude / Antigravity:</span>
+                          <button class="btn-copy" id="copyBtn" onclick="copyAgentPrompt()">📋 Kopiuj Prompt</button>
+                        </div>
+                        <pre class="prompt-code" id="promptText">Ładowanie promptu...</pre>
+                      </div>
+                    </details>
+                  </div>
                 </div>
 
                 <script>
+                  const agentPrompt = "Działasz jako inżynier DevOps/Platform w organizacji SysAIT. Masz bezpośredni dostęp do Platform Control Plane przez uruchomiony serwer MCP (włączyłem stctl mcp-proxy) oraz narzędzie CLI stctl.\\n\\n" +
+                    "Zadanie:\\n" +
+                    "Wdróż od zera (Zero-to-One) aplikację demonstracyjną z repozytorium: https://github.com/sysait/demo-platform.git na platformie SysAIT.\\n\\n" +
+                    "Wymagania i procedury:\\n" +
+                    "1. Procedura bazowa:\\n" +
+                    "   - Przed podjęciem działań przeczytaj wytyczne z zasobów MCP sysait://guides/application_bootstrap oraz sysait://guides/deployment_authoring.\\n" +
+                    "   - Zweryfikuj dostępne zasoby organizacji (stctl quota get).\\n\\n" +
+                    "2. Przygotowanie środowiska i zasobów:\\n" +
+                    "   - Utwórz dedykowany, odizolowany namespace dla środowiska (np. stctl ns create demo --type development --cpu 1 --mem 2 --storage 10).\\n" +
+                    "   - Przygotuj manifesty Kubernetes w repozytorium Git zgodnie z zasadami platformy (non-root UID 1000, brak eskalacji uprawnień, drop ALL capabilities, zdefiniowane requests i limits, liveness/readiness probes na /health).\\n\\n" +
+                    "3. Zarządzanie tajemnicami (Zero-Secret Intermediation):\\n" +
+                    "   - Wszelkie wrażliwe dane (np. hasło dostępu do aplikacji) wstrzyknij do Platform Secret Vault za pomocą stctl secrets put.\\n" +
+                    "   - Zwiąż klucz ze środowiskiem za pomocą stctl secrets bind do wskazanego sekretu Kubernetes (snake-game-secret).\\n" +
+                    "   - Pamiętaj o adnotacji reloader.stakater.com/auto: \\\"true\\\" w Deployment, aby umożliwić bezprzerwową rotację hasła.\\n\\n" +
+                    "4. Wdrożenie GitOps i ekspozycja:\\n" +
+                    "   - Zarejestruj i zsynchronizuj aplikację w kontrolerze GitOps (stctl apps create oraz stctl apps sync).\\n" +
+                    "   - Wystaw aplikację na świat za pomocą stctl domains expose z ograniczeniem IP do adresu wywołującego (curl -4 ifconfig.me).\\n\\n" +
+                    "5. Polityka poufności i nazewnictwa:\\n" +
+                    "   - W dokumentacji i komunikacji z użytkownikiem stosuj wyłącznie terminologię domenową (np. Platform Secret Vault). Nie ujawniaj nazw konkretnych silników bazodanowych ani skarbców wewnętrznych kontrolera.\\n\\n" +
+                    "Po zakończeniu wdrożenia przetestuj endpoint za pomocą curl, podaj publiczny URL aplikacji, hasło odblokowujące oraz przygotuj czytelny plik README.md opisujący procedurę.";
+
+                  document.getElementById("promptText").textContent = agentPrompt;
+
+                  function copyAgentPrompt() {
+                    navigator.clipboard.writeText(agentPrompt).then(() => {
+                      const btn = document.getElementById("copyBtn");
+                      btn.textContent = "Skopiowano! ✅";
+                      setTimeout(() => { btn.textContent = "📋 Kopiuj Prompt"; }, 2000);
+                    }).catch(() => {
+                      alert("Błąd kopiowania do schowka.");
+                    });
+                  }
+
                   let namespace = "demo";
                   let gameRunning = false;
                   let score = 0;

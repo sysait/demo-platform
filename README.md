@@ -111,3 +111,39 @@ Wszystkie manifesty w tym repozytorium są zgodne z wymogami **[DEPLOYMENT_RULES
 - **Kontekst kontenera:** `runAsNonRoot: true`, `runAsUser: 1000`, `allowPrivilegeEscalation: false`, `capabilities: drop ["ALL"]`, `seccompProfile: RuntimeDefault`.
 - **Zasoby:** Zdefiniowane `requests` (50m CPU, 64Mi RAM) oraz `limits` (200m CPU, 128Mi RAM).
 - **Proby:** Zdefiniowane `readinessProbe` i `livenessProbe` na ścieżce `/health` (port 8080).
+
+---
+
+## 🤖 Prompt dla Agenta AI (stctl mcp-proxy)
+
+Chcesz, aby dowolny agent AI (np. Cursor, Claude Desktop, Antigravity, Windsurf) zreplikował to wdrożenie na Twoim koncie? Po uruchomieniu proxy MCP (`stctl mcp-proxy`) przekaż agentowi poniższy prompt:
+
+```text
+Działasz jako inżynier DevOps/Platform w organizacji SysAIT. Masz bezpośredni dostęp do Platform Control Plane przez uruchomiony serwer MCP (włączyłem stctl mcp-proxy) oraz narzędzie CLI stctl.
+
+Zadanie:
+Wdróż od zera (Zero-to-One) aplikację demonstracyjną z repozytorium: https://github.com/sysait/demo-platform.git na platformie SysAIT.
+
+Wymagania i procedury:
+1. Procedura bazowa:
+   - Przed podjęciem działań przeczytaj wytyczne z zasobów MCP sysait://guides/application_bootstrap oraz sysait://guides/deployment_authoring.
+   - Zweryfikuj dostępne zasoby organizacji (stctl quota get).
+
+2. Przygotowanie środowiska i zasobów:
+   - Utwórz dedykowany, odizolowany namespace dla środowiska (np. stctl ns create demo --type development --cpu 1 --mem 2 --storage 10).
+   - Przygotuj manifesty Kubernetes w repozytorium Git zgodnie z zasadami platformy (non-root UID 1000, brak eskalacji uprawnień, drop ALL capabilities, zdefiniowane requests i limits, liveness/readiness probes na /health).
+
+3. Zarządzanie tajemnicami (Zero-Secret Intermediation):
+   - Wszelkie wrażliwe dane (np. hasło dostępu do aplikacji) wstrzyknij do Platform Secret Vault za pomocą stctl secrets put.
+   - Zwiąż klucz ze środowiskiem za pomocą stctl secrets bind do wskazanego sekretu Kubernetes (snake-game-secret).
+   - Pamiętaj o adnotacji reloader.stakater.com/auto: "true" w Deployment, aby umożliwić bezprzerwową rotację hasła.
+
+4. Wdrożenie GitOps i ekspozycja:
+   - Zarejestruj i zsynchronizuj aplikację w kontrolerze GitOps (stctl apps create oraz stctl apps sync).
+   - Wystaw aplikację na świat za pomocą stctl domains expose z ograniczeniem IP do adresu wywołującego (curl -4 ifconfig.me).
+
+5. Polityka poufności i nazewnictwa:
+   - W dokumentacji i komunikacji z użytkownikiem stosuj wyłącznie terminologię domenową (np. Platform Secret Vault). Nie ujawniaj nazw konkretnych silników bazodanowych ani skarbców wewnętrznych kontrolera.
+
+Po zakończeniu wdrożenia przetestuj endpoint za pomocą curl, podaj publiczny URL aplikacji, hasło odblokowujące oraz przygotuj czytelny plik README.md opisujący procedurę.
+```
