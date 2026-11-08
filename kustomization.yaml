@@ -2,9 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - nats.yaml
-  - publisher.yaml
-  - consumer-ui.yaml
+  - snake-app.yaml
 
 generatorOptions:
   disableNameSuffixHash: true
@@ -45,19 +43,3 @@ replacements:
       - select: { kind: Deployment }
         fieldPaths: ["spec.template.metadata.labels.[sysait.com/environment]"]
         options: { create: true }
-  - source:
-      kind: ConfigMap
-      name: platform-vars
-      fieldPath: data.INGRESS_HOST
-    targets:
-      - select: { kind: HTTPRoute }
-        fieldPaths:
-          - "metadata.annotations.[external-dns.alpha.kubernetes.io/hostname]"
-          - spec.hostnames.0
-  - source:
-      kind: ConfigMap
-      name: platform-vars
-      fieldPath: data.GATEWAY_NAME
-    targets:
-      - select: { kind: HTTPRoute }
-        fieldPaths: [spec.parentRefs.0.name]
