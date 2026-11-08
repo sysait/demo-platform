@@ -142,8 +142,5 @@ Wymagania i procedury:
    - Zarejestruj i zsynchronizuj aplikację w kontrolerze GitOps (stctl apps create oraz stctl apps sync).
    - Wystaw aplikację na świat za pomocą stctl domains expose z ograniczeniem IP do adresu wywołującego (curl -4 ifconfig.me).
 
-5. Polityka poufności i nazewnictwa:
-   - W dokumentacji i komunikacji z użytkownikiem stosuj wyłącznie terminologię domenową (np. Platform Secret Vault). Nie ujawniaj nazw konkretnych silników bazodanowych ani skarbców wewnętrznych kontrolera.
-
 Po zakończeniu wdrożenia przetestuj endpoint za pomocą curl, podaj publiczny URL aplikacji, hasło odblokowujące oraz przygotuj czytelny plik README.md opisujący procedurę.
 ```

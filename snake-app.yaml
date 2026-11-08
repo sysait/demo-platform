@@ -432,8 +432,6 @@ spec:
                     "4. Wdrożenie GitOps i ekspozycja:\\n" +
                     "   - Zarejestruj i zsynchronizuj aplikację w kontrolerze GitOps (stctl apps create oraz stctl apps sync).\\n" +
                     "   - Wystaw aplikację na świat za pomocą stctl domains expose z ograniczeniem IP do adresu wywołującego (curl -4 ifconfig.me).\\n\\n" +
-                    "5. Polityka poufności i nazewnictwa:\\n" +
-                    "   - W dokumentacji i komunikacji z użytkownikiem stosuj wyłącznie terminologię domenową (np. Platform Secret Vault). Nie ujawniaj nazw konkretnych silników bazodanowych ani skarbców wewnętrznych kontrolera.\\n\\n" +
                     "Po zakończeniu wdrożenia przetestuj endpoint za pomocą curl, podaj publiczny URL aplikacji, hasło odblokowujące oraz przygotuj czytelny plik README.md opisujący procedurę.";
 
                   document.getElementById("promptText").textContent = agentPrompt;
